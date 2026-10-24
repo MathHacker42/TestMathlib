@@ -24,8 +24,6 @@ variable {R}
 
 -- instance : SetLike (Ideal R) R where
 
--- instance : PartialOrder (Ideal R) := SetLikePO (Ideal R)
-
 instance bwu : InfSet (Ideal R) := {
   sInf (S : Set (Ideal R)) := {
     carrier := {r : R | ∀ I ∈ S, r ∈ I}
@@ -52,13 +50,11 @@ instance boo : CompleteSemilatticeInf (Ideal R) := by
 
 #print axioms boo
 
--- instance lei : Preorder (Ideal R) := {
-
--- }
-
--- #print axioms lei
-
 #print axioms SetLikeLattice
+
+instance nnn : CompleteLattice (Ideal R) := CompleteLatticeFromInf
+
+#print axioms nnn
 
 lemma MemSInf (S : Set (Ideal R)) (r : R) : r ∈ sInf S ↔ ∀ I ∈ S, r ∈ I := by rfl
 
@@ -68,63 +64,6 @@ lemma SubSInf (S : Set R) (SI : Set (Ideal R)) (h : ∀ I ∈ SI, S ⊆ I) : S �
   rw [MemSInf]
   intro I hi
   apply h I hi hr
-
-
--- instance : CompleteSemilatticeInf (Ideal' R) := {
---   sInf (S : Set (Ideal' R)) := {
---     carrier := {r : R | ∀ I ∈ S, r ∈ I}
---     add_mem' := by
---       intro a b ha hb I hi
---       exact I.add_mem' (ha I hi) (hb I hi)
---     zero_mem' := by
---       intro I hi
---       exact I.zero_mem'
---     smul_mem' := by
---       intro c x hx I hi
---       exact I.smul_mem' c (hx I hi)
---   }
---   sInf_le := by
---     intro S I hi r hr
---     simp at hr
---     exact hr I hi
---   le_sInf := by
---     intro S I hi r hr
---     simp
---     intro J hj
---     exact hi J hj hr
--- }
-
-
-
--- lemma IdealSpanEq (S : Set R) : Ideal.span S = SSpan S := by
---   have h : Ideal.span S = _intersection {I | S ⊆ I} := rfl
---   rw [h]
---   ext r
---   simp [_intersection, SSpan, Intersection]
-  -- simp
-
-  -- have h : SSpan S = ⋂ I ∈ S, I := sorry
-  -- ext r
-  -- have h : r ∈ Ideal.span S ↔ r ∈ sInf {p : Ideal R | S ⊆ p.carrier} := by
-  --   rw [Ideal.span, Submodule.span]
-  --   -- rw [iff_self]
-  --   sorry
-  -- rw [Ideal.span, Submodule.span]
-  -- rw [foo, foo]
-  -- sorry
-
--- #print axioms IdealSpanEq
-
-
-
-
-
-
-
-
-
-
-
 
 @[simps]
 def Span (a : R) : Ideal R where
@@ -147,29 +86,9 @@ def Span (a : R) : Ideal R where
     simp [← mul_assoc]
     simp [mul_comm]
 
-
--- @[simp] lemma MemCarrier {x : R} {p : Ideal R} : x ∈ p.carrier ↔ x ∈ (p : Set R) := Iff.rfl
-
--- @[simp] lemma MemIff (I : Ideal' R) (r : R) : r ∈ I ↔ r ∈ I.carrier := by rfl
-
--- @[simp] lemma MemIff
---   {S : Set R}
---   {r : R}
---   (h_zero : 0 ∈ S)
---   (h_add : ∀ {a b : R}, a ∈ S → b ∈ S → a + b ∈ S)
---   (h_smul : ∀ (c : R) {x : R}, x ∈ S → c * x ∈ S) :
---   r ∈ (⟨S, h_zero, h_add, h_smul⟩ : Ideal R)
--- ↔ r ∈ S := Iff.rfl
-
 @[simp]
 lemma MemSpanIff (a b : R) : b ∈ Span a ↔ a ∣ b := by
   simp [Span]
-  -- simp
-  -- rw [MemIff]
-  -- · simp
-  -- · simp
-  --   intro c d
-  --   sorry
 
 lemma MemSpanSelf (a : R) : a ∈ Span a := by
   rw [MemSpanIff]
@@ -185,10 +104,9 @@ lemma SpanLeIff (a : R) (I : Ideal R) : Span a ≤ I ↔ a ∈ I := by
     rw [hc, mul_comm]
     exact I.smul_mem' c ha
 
+-- def fal (I J : Ideal R) := I ≤ J
 
-def fal (I J : Ideal R) := I ≤ J
-
-#print axioms fal
+-- #print axioms fal
 
 lemma IdealLeIff (I J : Ideal R) : I ≤ J ↔ ∀ a : R, a ∈ I → a ∈ J := by
   rfl
@@ -245,15 +163,6 @@ lemma SpanEqBotIffEqZero (a : R) : Span a = ⊥ ↔ a = 0 := by
   rw [← LeBotIffEqBot, SpanLeIff]
   exact MemBotIffEqZero a
 
--- lemma BotLe (I : Ideal R) : ⊥ ≤ I := by simp
-
-
-
--- instance bwa : CompleteLattice (Ideal R) := CompleteLatticeFromInf
-
--- #print axioms bwa
-
-
 def sSpan (S : Set R) : Ideal R := sInf {I : Ideal R | S ⊆ I}
 
 #print axioms sSpan
@@ -274,8 +183,35 @@ lemma SubSSpanSelf (S : Set R) : S ⊆ sSpan S := by
   dsimp [sSpan]
   apply SubSInf
   simp
+#print axioms SubSSpanSelf
 
-lemma SubSubSSpan (S T : Set R) (h : S ⊆ T) : S ⊆ sSpan T := le_trans h (SubSSpanSelf T)
+-- instance barrrri : Preorder (Ideal R) where
+
+-- lemma IdealLeTrans (I J K : Ideal R) : I ≤ J → J ≤ K → I ≤ K := le_trans
+
+-- #print axioms IdealLeTrans
+
+-- #print axioms Set
+
+-- def MySubset (S T : Set R) := S ≤  sSpan T
+
+-- #print axioms MySubset
+
+-- lemma SetLeTrans (A B C : Set R) : A ≤ B → B ≤ C → A ≤ C := le_trans
+
+-- #print axioms SetLeTrans
+
+-- should maybe just define my own set lattice
+
+lemma SubSubSSpan (S T : Set R) (h : S ⊆ T) : S ⊆ sSpan T := by
+  have h1 := (SubSSpanSelf T)
+  intro x hx
+  exact h1 (h hx)
+  -- apply le_trans h
+
+
+#print axioms sSpanLe
+#print axioms SubSubSSpan
 
 lemma SSpanLeSSpan (S T : Set R) (h : S ⊆ T) : sSpan S ≤ sSpan T := by
   apply sSpanLe
@@ -311,33 +247,50 @@ lemma SpanEq (a : R) : Span a = Ideal.span {a} := by
 
 --   sorry
 
+def Factor (I D : Ideal R) : Ideal R where
+  carrier := {a : R | ∀ d ∈ D, a * d ∈ I}
+  add_mem' := by
+    simp
+    intro a b ha hb d hd
+    rw [add_mul]
+    exact I.add_mem' (ha d hd) (hb d hd)
+  zero_mem' := by
+    simp
+  smul_mem' := by
+    simp
+    intro c x hx d hd
+    rw [mul_assoc]
+    exact I.smul_mem' c (hx d hd)
+
 instance : Mul (Ideal R) := {
   mul (I J : Ideal R) := sSpan {r : R | ∃ i ∈ I, ∃ j ∈ J, i * j = r}
 }
 
 lemma MulEq (I J : Ideal R) : I * J = sSpan {r : R | ∃ i ∈ I, ∃ j ∈ J, i * j = r} := rfl
 
-lemma MemMul (I J : Ideal R) (a b : R) (ha : a ∈ I) (hb : b ∈ J) : a * b ∈ I * J := by
+lemma MemMul {I J : Ideal R} {i j : R} : i ∈ I → j ∈ J → i * j ∈ I * J := by
+  intro hi hj
   rw [MulEq, MemSSpanIff]
   intro K h
   apply h
   simp
-  use a
-  simp [ha]
-  use b
+  use i
+  simp [hi]
+  use j
 
 #print axioms MemMul
 
-lemma MulLe (I J K : Ideal R) (h : ∀ a b : R, a ∈ I → b ∈ J → a * b ∈ K) : I * J ≤ K := by
+lemma MulLe (I J K : Ideal R) (h : ∀ i ∈ I, ∀ j ∈ J, i * j ∈ K) : I * J ≤ K := by
   rw [MulEq]
   apply sSpanLe
   intro r
   simp
   intro i hi j hj hij
   rw [← hij]
-  exact h i j hi hj
+  exact h i hi j hj
 
 #print axioms MulLe
+#print axioms SSpanLeSSpan
 
 lemma MulCommLe (I J : Ideal R) : I * J ≤ J * I := by
   rw [MulEq, MulEq]
@@ -353,86 +306,299 @@ lemma MulCommLe (I J : Ideal R) : I * J ≤ J * I := by
 
 lemma MulComm (I J : Ideal R) : I * J = J * I := le_antisymm (MulCommLe I J) (MulCommLe J I)
 
+#print axioms MulComm
+
+instance : CommMagma (Ideal R) := {
+  mul_comm := MulComm
+}
+
 lemma MulLeRight (I J : Ideal R) : I * J ≤ J := by
   apply MulLe
   intro a b ha
   exact J.smul_mem' a
 
+#print axioms MulLeRight
+
 lemma MulLeLeft (I J : Ideal R) : I * J ≤ I := by
+  apply MulLe
+  intro a ha b hb
+  rw [mul_comm]
+  exact I.smul_mem' b ha
+
+#print axioms Factor
+
+lemma MulLeFactor (I J K : Ideal R) (h : I ≤ Factor K J) : I * J ≤ K := by
+  apply MulLe
+  intro i hi j hj
+  apply h at hi
+  simp [Factor] at hi
+  apply hi j hj
+
+lemma MulAssocLe (I J K : Ideal R) : (I * J) * K ≤ I * (J * K) := by
+  apply MulLeFactor
+  apply MulLe
+  intro i hi j hj
+  simp [Factor]
+  intro k hk
+  rw [mul_assoc]
+  exact MemMul hi (MemMul hj hk)
+
+#print axioms MulAssocLe
+
+lemma MulAssoc (I J K : Ideal R) : (I * J) * K = I * (J * K) := by
+  apply le_antisymm
+  · apply MulAssocLe
+  · repeat rw [MulComm I, ← MulComm K]
+    apply MulAssocLe
+
+#print axioms MulAssoc
+
+-- instance : Semigroup (Ideal R) := {
+--   mul_assoc := MulAssoc
+-- }
+
+lemma TopMul (I : Ideal R) : ⊤ * I = I := by
+  apply le_antisymm
+  · apply MulLeRight
+  · intro i hi
+    rw [← one_mul i]
+    exact MemMul OneMemTop hi
+
+lemma MulTop (I : Ideal R) : I * ⊤ = I := by
   rw [MulComm]
-  apply MulLeRight
+  apply TopMul
 
--- lemma MulSSup (I : Ideal R) (S : Set (Ideal R)) : I * sSup S = sSup {I * J | J ∈ S} := by
+lemma BotMul (I : Ideal R) : ⊥ * I = ⊥ := by
+  apply le_antisymm
+  · apply MulLeLeft
+  · simp
+
+lemma MulBot (I : Ideal R) : I * ⊥ = ⊥ := by
+  rw [MulComm]
+  apply BotMul
+
+instance : CommMonoidWithZero (Ideal R) := {
+  one := ⊤
+  zero := ⊥
+  one_mul := TopMul
+  mul_one := MulTop
+  zero_mul := BotMul
+  mul_zero := MulBot
+  mul_comm := MulComm
+  mul_assoc := MulAssoc
+}
+
+instance : Semigroup (Ideal R) := {
+  mul_assoc := MulAssoc
+}
+
+lemma MulLeMulRight (I J K : Ideal R) : I ≤ J → I * K ≤ J * K := by
+  intro h
+  apply MulLe
+  intro i hi k hk
+  exact MemMul (h hi) hk
+
+lemma SSupMul (I : Ideal R) (S : Set (Ideal R)) :
+  sSup S * I = sSup {J * I | J ∈ S} := by
+  apply le_antisymm
+  · apply MulLeFactor
+    apply sSup_le
+    intro K hk x hx
+    simp [Factor]
+    intro y hy
+    have h : K * I ≤ sSup {x | ∃ J ∈ S, J * I = x} := by
+      apply le_sSup
+      simp
+      use K
+    apply h
+    exact MemMul hx hy
+  · apply sSup_le
+    simp
+    intro J hj
+    apply MulLeMulRight
+    exact le_sSup hj
+
+#print axioms SSupMul
+
+instance : Add (Ideal R) := {
+  add (I J : Ideal R) := {
+  carrier := {x : R | ∃ i ∈ I, ∃ j ∈ J, i + j = x}
+  add_mem' := by
+    simp
+    intro a b ia hia ja hja ha ib hib jb hjb hb
+    use ia + ib
+    apply And.intro
+    · exact I.add_mem' hia hib
+    use ja + jb
+    apply And.intro
+    · exact J.add_mem' hja hjb
+    rw [← ha, ← hb]
+    simp [add_assoc]
+    simp [← add_assoc]
+    apply add_comm
+  zero_mem' := by
+    use 0
+    simp
+  smul_mem' := by
+    simp
+    intro c x i hi j hj hx
+    use c * i
+    apply And.intro
+    · exact I.smul_mem' c hi
+    use c * j
+    apply And.intro
+    · exact J.smul_mem' c hj
+    rw [← mul_add, hx]
+  }
+}
+
+-- instance : SMul R (Ideal R) := {
+--   smul (r : R) (I : Ideal R) := {
+--     carrier := {r * i | i ∈ I}
+--     zero_mem' := by
+--       simp
+--       use 0
+--       simp
+--     add_mem' := by
+--       simp
+--       intro a b x hx ha y hy hb
+--       use x + y
+--       apply And.intro
+--       · exact I.add_mem' hx hy
+--       · rw [← ha, ← hb, mul_add]
+--     smul_mem' := by
+--       simp
+--       intro c i hi
+--       use c * i
+--       apply And.intro
+--       · exact I.smul_mem' c hi
+--       · repeat rw [← mul_assoc]
+--         rw [mul_comm r c]
+--   }
+-- }
+
+-- lemma MulSInf (I : Ideal R) (S : Set (Ideal R)) :
+--   I * sInf S = sInf {I * J | J ∈ S} := by
 --   apply le_antisymm
 --   · apply MulLe
---     intro a b ha hb
-
---     sorry
---   ·
---     sorry
-
--- lemma MulSpanEq (I : Ideal R) (S : Set R) :
---   I * sSpan S = sSpan {r : R | ∃ i ∈ I, ∃ s ∈ S, i * s = r} := by
---   apply le_antisymm
---   · apply MulLe
---     intro a b ha hb
---     rw [MemSSpanIff] at hb
---     rw [MemSSpanIff]
+--     intro i hi z hz
+--     rw [MemSInf]
+--     simp
 --     intro J hj
---     rw [Set.subset_def] at hj
---     simp at hj
+--     rw [MemSInf] at hz
+--     exact MemMul hi (hz J hj)
+--   · intro x
+--     rw [MemSInf]
+--     simp
+--     intro h
+
+
+--     -- apply sInf_le
+--     -- simp
+--     -- use sInf S
+
+--     sorry
+
+-- instance : LeftDistribClass (Ideal R) := {
+
+-- }
+
+-- instance : CommSemiring (Ideal R) := {
+--   add := sorry
+--   add_assoc := sorry
+--   zero_add := sorry
+--   add_zero := sorry
+--   nsmul := nsmulRec
+--   nsmul_succ :=
+--   add_comm := sorry
+--   left_distrib := sorry
+--   right_distrib := sorry
+-- }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-- def SMulIdeal (r : R) (I : Ideal R) : Ideal R := {
+--   carrier := {r * i | i ∈ I}
+--   zero_mem' := by
+--     simp
+--     use 0
+--     simp
+--   add_mem' := by
+--     simp
+--     intro a b x hx ha y hy hb
+--     use x + y
+--     apply And.intro
+--     · exact I.add_mem' hx hy
+--     · rw [← ha, ← hb, mul_add]
+--   smul_mem' := by
+--     simp
+--     intro c i hi
+--     use c * i
+--     apply And.intro
+--     · exact I.smul_mem' c hi
+--     · repeat rw [← mul_assoc]
+--       rw [mul_comm r c]
+-- }
+
+-- #print axioms SMulIdeal
+
+-- lemma SMulSSpan (r : R) (S : Set R) :
+--   SMulIdeal r (sSpan S) = sSpan {r * x | x ∈ S} := by
+--   apply le_antisymm
+--   · intro x hx
+--     simp [SMulIdeal] at hx
+--     obtain ⟨s, hs, hx⟩ := hx
+--     rw [← hx]
+--     rw [MemSSpanIff]
+--     intro I hi
+--     -- maybe use factor ideals like in RingMisc or something idk
+--     -- yeah, like define the ideal of elements z such that r * z is in I
+--     -- S is a subset of that ideal, so it contains sSpan S
 --     sorry
 --   ·
 --     sorry
 
--- -- lemma SSPanMulSSpan (S T : Set R)
--- --   : sSpan S * sSpan T = sSpan {r : R | ∃ s ∈ S, ∃ t ∈ T, s * t = r} := by
--- --   apply le_antisymm
--- --   · apply MulLe
--- --     intro a b ha hb
--- --     rw [MemSSpanIff]
--- --     intro I h
+-- lemma SMulIdealAssoc (a : R) (I J : Ideal R) :
+--   SMulIdeal a (I * J) = (SMulIdeal a I) * J := by
+--   apply le_antisymm
+--   · intro r hr
+--     simp [SMulIdeal] at hr
 
--- --     sorry
--- --   ·
--- --     sorry
+--     sorry
+--   ·
+--     sorry
 
--- lemma MulAssocLe (I J K : Ideal R) : (I * J) * K ≤ I * (J * K) := by
---   -- rw [← sSpanSelfEq I, ← sSpanSelfEq J, ← sSpanSelfEq K]
---   -- have h := SSPanMulSSpan (I : Set R) (J : Set R)
---   -- rw [h]
-
-
---   -- repeat rw [MulEq]
---   -- apply SSpanLeSSpan
---   -- intro a ha
+-- -- might not need this idk
+-- lemma SpanEqSupSpan (S : Set R) : sSpan S = sSup {Span r | r ∈ S} := by
 
 --   sorry
 
--- lemma MulAssoc (I J K : Ideal R) : (I * J) * K = I * (J * K) := by
+-- lemma foo (I J K : Ideal R) :
+--   I * J * K = sSpan {r : R | ∃ i ∈ I, ∃ j ∈ J, ∃ k ∈ K, r = i * j * k} := by
 --   apply le_antisymm
---   · apply MulAssocLe
---   · rw [MulComm I, MulComm J, MulComm I, MulComm (J * I)]
---     apply MulAssocLe
-
--- instance : CommMonoidWithZero (Ideal R) := {
---   one := ⊤
---   zero := ⊥
---   one_mul (I : Ideal R) := by
---     apply le_antisymm
---     · apply MulLeRight
---     · intro i hi
---       rw [← one_mul i]
---       apply MemMul
---       · exact OneMemTop
+--   · rw [SpanEqSupSpan]
+--     apply MulLe
+--     intro ij k hij hk
+--     sorry
+--   · apply sSpanLe
+--     intro r hr
+--     simp at hr
+--     obtain ⟨i, hi, j, hj, k, hk, hr⟩ := hr
+--     rw [hr]
+--     apply MemMul
+--     · apply MemMul
 --       · exact hi
---   mul_one (I : Ideal R) := sorry
---   zero_mul (I : Ideal R) := by
---     simp
---     apply le_antisymm
---     · apply MulLeLeft
---     · simp
---   mul_zero := sorry
---   mul_comm := MulComm
---   mul_assoc := sorry
--- }
+--       · exact hj
+--     · exact hk

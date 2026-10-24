@@ -3,6 +3,13 @@ import Mathlib.Algebra.Algebra.Operations
 import Mathlib.RingTheory.Ideal.Quotient.Operations
 import Mathlib.RingTheory.Ideal.Maps
 -- import Mathlib.RingTheory.UniqueFactorizationDomain.Defs
+import Mathlib.GroupTheory.QuotientGroup.Defs
+import Mathlib.GroupTheory.Congruence.Defs
+
+-- def fuu := QuotientGroup.lift
+#print axioms QuotientGroup.lift
+#print axioms Con.lift
+-- #print axioms con_ker_eq_conKer
 
 -- def OrCases {P Q R : Prop} (hpq : P ∨ Q) (hpr : P → R) (hqr : Q → R) :=
 --     (@or_imp P Q R).mpr (And.intro hpr hqr) hpq

@@ -96,13 +96,24 @@ def PreOrderPreimage [Preorder Y] (f : X → Y) : Preorder X where
 
 variable {A : Type} [SetLike X A]
 
--- @[simp] lemma mem_carrier {x : A} {p : X} : x ∈ SetLike.coe p ↔ x ∈ (p : Set A) := Iff.rfl
-
 @[ext] theorem ext {p q : X} (h : ∀ x, x ∈ p ↔ x ∈ q) : p = q := SetLike.ext h
 
 
-variable (X) in
-def SetLikePO : PartialOrder X := {
+-- variable (X) in
+-- def SetLikePO : PartialOrder X := {
+--   le_antisymm := by
+--     intro a b hab hba
+--     ext c
+--     apply Iff.intro
+--     · intro hc
+--       exact hab hc
+--     · intro hc
+--       exact hba hc
+-- }
+
+-- #print axioms SetLikePO
+
+instance bazo : PartialOrder X := {
   le_antisymm := by
     intro a b hab hba
     ext c
@@ -113,25 +124,11 @@ def SetLikePO : PartialOrder X := {
       exact hba hc
 }
 
-#print axioms SetLikePO
-
-instance bazo : PartialOrder X := SetLikePO X
--- -- {
--- --   le_antisymm := by
--- --     intro a b hab hba
--- --     ext c
--- --     apply Iff.intro
--- --     · intro hc
--- --       exact hab hc
--- --     · intro hc
--- --       exact hba hc
--- -- }
-
--- #print axioms bazo
+#print axioms bazo
 
 lemma LeIff {p q : X} : p ≤ q ↔ (p : Set A) ≤ (q : Set A) := by rfl
 
--- #print axioms LeIff
+#print axioms LeIff
 -- #print axioms InfSet
 -- #print axioms SetLike
 -- #print axioms CompleteSemilatticeInf
